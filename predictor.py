@@ -3,18 +3,13 @@ import math
 
 class predictor:
     
-    def __init__(self, points = None):
+    def __init__(self):
         self.screenWidth = 640
         self.screenHeight = 480
         self.path = []
         self.projected = []
-        self.airResistance = 1. 
-        #effect of air resitance. Value should be less than or equal to 1.
-        if points is None:
-            start = 0
-        else:
-            path.extend(points)
-        self.interval = .0333
+        self.horizontalA = 0
+        self.verticalA = 10
         self.g = 100000
 
     def addPointPath(self, p):
@@ -41,24 +36,48 @@ class predictor:
         return end - start
 
     def velocity(self, p1, p2):
-        return self.getDistance(p1,p2) / self.interval
+        return self.getDistance(p1,p2)
 
     def velocityX(self, p1, p2):
-        return self.dX(p1, p2) / self.interval
+        return self.dX(p1, p2)
 
     def velocityY(self, p1, p2):
-        return self.dY(p1, p2) / self.interval
+        return self.dY(p1, p2)
 
     def nextX(self, p1, p2):
-        return (p2.x + self.dX(p1, p2)) * self.airResistance
+        return p2.x + (self.dX(p1, p2) + self.horizontalA)
 
     def nextY(self, p1, p2):
         vStart = self.velocityY(p1, p2)
-        return (p2.y + (vStart * self.interval - .5 * self.g * pow(self.interval, 2))) * self.airResistance
+        return p2.y + (vStart + self.verticalA)
+
+    def detectHA(self, p1, p2, p3):
+        start = p1.x
+        mid = p2.x
+        end = p3.x
+        d1 = mid - start
+        d2 = end - mid
+        dd = d2 - d1
+        return dd
+
+    def detectVA(self, p1, p2, p3):
+        start = p1.y
+        mid = p2.y
+        end = p3.y
+        d1 = mid - start
+        d2 = end - mid
+        dd = d2 - d1
+        return dd
 
     def projectPath(self):
-        p1 = self.path[-2]
-        p2 = self.path[-1]
+        self.projected = []
+        p1 = self.path[-3]
+        p2 = self.path[-2]
+        p3 = self.path[-1]
+        self.horizontalA = self.detectHA(p1,p2,p3)
+        self.verticalA = self.detectVA(p1,p2,p3)
+        p1 = p2
+        p2 = p3
 
         while (p2.x > 0 and p2.x < self.screenWidth) and (p2.y > 0 and p2.y < self.screenHeight):
             newX = int(self.nextX(p1, p2))
