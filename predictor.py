@@ -4,8 +4,8 @@ import math
 class predictor:
     
     def __init__(self):
-        self.screenWidth = 640
-        self.screenHeight = 480
+        self.screenWidth = 1280
+        self.screenHeight = 720
         self.path = []
         self.projected = []
         self.horizontalA = 0
@@ -31,8 +31,8 @@ class predictor:
         return end - start
 
     def dY(self, p1, p2):
-        start = p1.x
-        end = p2.x
+        start = p1.y
+        end = p2.y
         return end - start
 
     def velocity(self, p1, p2):
@@ -48,7 +48,8 @@ class predictor:
         return p2.x + (self.dX(p1, p2) + self.horizontalA)
 
     def nextY(self, p1, p2):
-        vStart = self.velocityY(p1, p2)
+        vStart = self.dY(p1, p2)
+        print vStart + self.verticalA
         return p2.y + (vStart + self.verticalA)
 
     def detectHA(self, p1, p2, p3):
@@ -66,8 +67,9 @@ class predictor:
         end = p3.y
         d1 = mid - start
         d2 = end - mid
-        dd = d2 - d1
-        return dd
+        print d2 - d1
+        return d2 - d1
+        
 
     def projectPath(self):
         self.projected = []
@@ -76,12 +78,11 @@ class predictor:
         p3 = self.path[-1]
         self.horizontalA = self.detectHA(p1,p2,p3)
         self.verticalA = self.detectVA(p1,p2,p3)
-        p1 = p2
-        p2 = p3
 
         while (p2.x > 0 and p2.x < self.screenWidth) and (p2.y > 0 and p2.y < self.screenHeight):
             newX = int(self.nextX(p1, p2))
             newY = int(self.nextY(p1, p2))
             p1 = p2
             p2 = point(newX, newY)
-            self.projected.append(p2)
+            print p2
+            self.projected.append(point(newX, newY))
